@@ -23,10 +23,10 @@ file_name_2 = './Input/Column10_0615.csv' # ANSYSのデータファイル
 file_resultPly = 'Output/result_main/result.ply'
 file_resultCsv = 'Output/result_main/result.csv'
 
-a2 = [] # file2の入力用
-points_obj_list = []  # Pointのオブジェクトを保持。
+a2 = [] #file2の入力用
+points_obj_list = []  #Pointのオブジェクトを保持。
 
-# ファイル2読み込み
+#ファイル2読み込み
 with open(file_name_2) as f2:
     reader2 = csv.reader(f2)
     for row in reader2:
@@ -168,7 +168,9 @@ while num < N:
 # CNA.surface_pds(fixed_points)
 # CNA.surface(fixed_points)
 CNA.surface_kikalab(fixed_points)
-        
+
+#重複した座標を削除
+fixed_points = np.unique(fixed_points, axis=0)
 
 
 
