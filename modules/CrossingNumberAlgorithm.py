@@ -4,10 +4,9 @@ import math
 from modules import Point
 from modules import Biharmonic
 
+#交差数判定法
 class CrossingNumberAlgorithm:
     def __init__(self):
-       
-
         self.lefts = np.array([[None, None, None]])
         #self.origin = np.array([(x_max+x_min)/2, (y_max+y_min)/2, (z_max+z_min)/2])
         # 表面形状データの読み込み
@@ -35,7 +34,9 @@ class CrossingNumberAlgorithm:
         self.np_list2 = np.array(self.list2)
         self.np_list1 = self.np_list1[:,0:3] #[x, y, z]座標
         self.np_list2 = self.np_list2[:,1:4] #[点番号１, 点番号2, 点番号3] ex[0, 5, 2]
-    
+        print('np_list1 = ',self.np_list1[:5])
+        print('np_list2 = ',self.np_list2[:5])
+
     def biharmonic(self, points, cs, lambdas):
         # Biharmonic
         self.biharmonic = Biharmonic.Biharmonic(points, cs, lambdas)
@@ -120,7 +121,37 @@ class CrossingNumberAlgorithm:
                 num = num + 1
                 print('num : ', num)
 
+    #物体表面上に点を生成（キカラボさん手法）       
+    def surface_kikalab(self, fixed_points):
+        for list2 in self.np_list2:
+            #値の設定
+            pitch = 10
+            p0 = self.np_list1[list2[0]]
+            p1 = self.np_list1[list2[1]]
+            p2 = self.np_list1[list2[2]]
+            base = np.linalg.norm(p1-p2) #三角形の底辺
+            area = calculate_triangle_area(p0, p1, p2) #三角形の面積
+            ndiv = int(2*area/(base*pitch)) + 1.0 #int()+1とすることでndiv>=1となるため，hがpitchより小さいとき生成される点は三頂点のみになる
+            l0_points = [] #l0上の区分点
+            l1_points = [] #l1上の区分点
+
+            #l0, l1上をndiv等分した点の座標を求める
+            i = 0
+            while i <= ndiv:
+                l0_points.append(p0 + i*(p1-p0)/ndiv)
+                l1_points.append(p0 + i*(p2-p0)/ndiv)
+                i+=1
             
+            #di上にndiv_i等分した点の座標を求める
+            i = 0
+            while i < len(l0_points):
+                ndiv_i = int(np.linalg.norm(l0_points[i]-l1_points[i])/pitch)+1.0
+                j = 0
+                while j <= ndiv_i:
+                    fixed_points.append(l0_points[i] + j * (l1_points[i] - l0_points[i]) / ndiv_i)
+                    j+=1
+                i+=1
+
 
     def cramer(self, pds_point): #クラメルの公式を用いて内外判定
         #ray = self.origin - pds_point
@@ -133,6 +164,7 @@ class CrossingNumberAlgorithm:
 
             OA = v1 - v0
             OB = v2 - v0
+
 
             left = [[OA[0], OB[0], ray[0]], 
                     [OA[1], OB[1], ray[1]], 
@@ -183,3 +215,21 @@ def check_distance(fixed_points, candidate_point, long):
             check = False
             break
     return check
+
+# ３点の座標を引数とし、その3点で構成される三角形の面積を返す
+def calculate_triangle_area(p0, p1, p2): 
+    # ベクトルの外積を計算
+    cross_product = np.cross(p1 - p0, p2 - p0)
+    # 三角形の面積はベクトルの長さの半分
+    area = 0.5 * np.linalg.norm(cross_product)
+    return area
+
+#直線p1-p2上にl/ndiv間隔で点列を取得
+def point_sequence(p1, p2, ndiv):
+    #単位ベクトルの生成
+    e = (p2-p1)/np.linalg.norm(p2-p1)
+    points=[]
+    i=0
+    while i < ndiv:
+        points.append(p1 + i*e)
+    return points
