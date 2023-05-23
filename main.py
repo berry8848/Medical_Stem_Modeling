@@ -20,8 +20,8 @@ file_name_2 = './Input/Column10_0615.csv' # ANSYSのデータファイル
 # file_name_2 = './Input/joint.csv' # ANSYSのデータファイル
 
 # Outputファイル
-file_resultPly = 'Output/result_4to6/result_4to6.ply'
-file_resultCsv = 'Output/result_4to6/result_4to6.csv'
+file_resultPly = 'Output/result_main/result.ply'
+file_resultCsv = 'Output/result_main/result.csv'
 
 a2 = [] # file2の入力用
 points_obj_list = []  # Pointのオブジェクトを保持。
@@ -124,7 +124,7 @@ fixed_points = [] # 確定点
 CNA = CrossingNumberAlgorithm.CrossingNumberAlgorithm()
 
 while num < N:
-    if len(fixed_points) >= 450:
+    if len(fixed_points) >= 0:
         break
 
     flg_P = False
@@ -167,6 +167,7 @@ while num < N:
 # CNA.biharmonic(points, cs, lambdas)
 # CNA.surface_pds(fixed_points)
 # CNA.surface(fixed_points)
+CNA.surface_kikalab(fixed_points)
         
 
 
