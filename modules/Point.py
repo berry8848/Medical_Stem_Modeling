@@ -1,5 +1,4 @@
 # coding: utf-8
-#import rhinoscriptsyntax as rs
 import numpy as np
 
 class Point:
@@ -19,7 +18,7 @@ class Point:
         self.x = p[1]
         self.y = p[2]
         self.z = p[3]
-        self.stress = np.clip(p[4], None, 0)
+        self.stress = np.clip(p[4], None, 0) #応力値が正の値の場合、0に変換する（常に負の値をとるようにする）
         self.coordinate = [p[1], p[2], p[3]]
    
 
