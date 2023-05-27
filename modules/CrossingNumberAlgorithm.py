@@ -25,8 +25,8 @@ class CrossingNumberAlgorithm:
             # strをfloatに変換
             self.list1 = [[float(x) for x in y] for y in self.list1]
             self.list2 = [[int(x) for x in y] for y in self.list2]
-        print('list1 = ',self.list1[:5])
-        print('list2 = ',self.list2[:5])
+        #print('list1 = ',self.list1[:5])
+        #print('list2 = ',self.list2[:5])
         print("読み込み終了")
 
         #surface用にnp変換
@@ -34,19 +34,14 @@ class CrossingNumberAlgorithm:
         self.np_list2 = np.array(self.list2)
         self.np_list1 = self.np_list1[:,0:3] #[x, y, z]座標
         self.np_list2 = self.np_list2[:,1:4] #[点番号１, 点番号2, 点番号3] ex[0, 5, 2]
-        print('np_list1 = ',self.np_list1[:5])
-        print('np_list2 = ',self.np_list2[:5])
+        # print('np_list1 = ',self.np_list1[:5])
+        # print('np_list2 = ',self.np_list2[:5])
 
     def biharmonic(self, points, cs, lambdas):
         # Biharmonic
+        # surface_pds用．surface_pds消すならこれも消す
         self.biharmonic = Biharmonic.Biharmonic(points, cs, lambdas)
         print(self.biharmonic.cal(15.78, 4.09, 52.35))
-
-    # PDS点群に表面点群を連結
-    def outline(self, outline_points):
-        for list in self.list1:
-            array = [list[0], list[1], list[2]]
-            outline_points.append(array)
 
     #物体表面上に点を2個ずつ配置     
     def surface(self, fixed_points):
@@ -125,7 +120,7 @@ class CrossingNumberAlgorithm:
     def surface_kikalab(self, fixed_points):
         for list2 in self.np_list2:
             #値の設定
-            pitch = 10
+            pitch = 3
             p0 = self.np_list1[list2[0]]
             p1 = self.np_list1[list2[1]]
             p2 = self.np_list1[list2[2]]
