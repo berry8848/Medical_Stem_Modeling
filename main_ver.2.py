@@ -13,6 +13,21 @@ import math
 import time
 import random
 
+# define
+MAXIMUM_NUMBER_OF_SEARCHES = 800 # 点が連続でN回生成できなかったら終了
+MAXIMUM_NUMBER_OF_POINTS = 20 # 最大生成点数
+COEFFICIENT_OF_LONG = 10 # 点間距離に掛ける係数
+
+# Inputファイル
+file_name_2 = './Input/Column10_0615.csv' # ANSYSのデータファイル
+# file_name_2 = './Input/square1220.csv' # ANSYSのデータファイル\
+# file_name_2 = './Input/joint.csv' # ANSYSのデータファイル
+
+# Outputファイル
+file_resultPly = 'Output/result_main/result.ply'
+file_resultCsv = 'Output/result_main/result.csv'
+
+
 # 応力と密度の関係式．PDSのみに使用　※関係式が微妙なため，臨時で別の関数
 def stress_to_density(stress):
     if stress >= 0: #生データが正の場合，0を返す．（通常はマイナスの値をとる）
@@ -22,10 +37,13 @@ def stress_to_density(stress):
         density = 3*0.00001*(stress)*(stress) + 0.01*(stress) + 1.448
     return density
 
+# 密度と点間距離の関係式
 def density_to_long(density):
     long = 6 * 0.1 * math.sqrt(math.sqrt(2)*math.pi/ density)
-    return 10*long
+    return COEFFICIENT_OF_LONG*long
 
+# 点間距離内に他の点が含まれているか否かを判定．
+# 点間距離内に他の点が含まれていたらFalseを返す．
 def check_distance(fixed_points, candidate_point, long):
     b_x = candidate_point.x 
     b_y = candidate_point.y
@@ -42,15 +60,7 @@ def check_distance(fixed_points, candidate_point, long):
     return check
 
 
-def generate_points():
-    file_name_2 = './Input/Column10_0615.csv' # ANSYSのデータファイル
-    # file_name_2 = './Input/square1220.csv' # ANSYSのデータファイル\
-    # file_name_2 = './Input/joint.csv' # ANSYSのデータファイル
-
-    # Outputファイル
-    file_resultPly = 'Output/result_main/result.ply'
-    file_resultCsv = 'Output/result_main/result.csv'
-
+def main():
     a2 = [] #file2の入力用
     points_obj_list = []  #Pointのオブジェクトを保持。
 
@@ -60,9 +70,9 @@ def generate_points():
         for row in reader2:
             a2.append(row) 
 
-    # ANSYS上の点群を取得し座標値を取得 ※取得方法不明のため，csvからの読み取りに臨時変更
+    # ANSYS上の点群を取得し座標値を取得
     points = np.loadtxt(file_name_2, delimiter=',')
-    print('points = ',points[0:10])
+    print('points = ',points[0:3])
 
 
     # FEMの節点の読み込み
@@ -73,13 +83,10 @@ def generate_points():
 
     # Gauss
     gauss = Gauss.Gauss(points)
-    zs, lambdas , cs= gauss.gauss1()
-    print('lambdas: ', lambdas)
-    print('cs: ', cs)
+    _, lambdas , cs= gauss.gauss1()
 
     # Biharmonic
     biharmonic = Biharmonic.Biharmonic(points, cs, lambdas)
-    print(biharmonic.cal(15.78, 4.09, 52.35))
 
     # 以下，PDS
     # PDSでの点の生成範囲の設定
@@ -111,16 +118,13 @@ def generate_points():
     print("y_max = ", y_max, "y_min = ", y_min)
     print("z_max = ", z_max, "z_min = ", z_min)
 
-    # 点が連続でN回生成できなかったら終了
-    N = 800
-    num = 0
-    fixed_points = [] # 確定点
-
     # CrossNumberAlgorithm
     CNA = CrossingNumberAlgorithm.CrossingNumberAlgorithm()
 
-    while num < N:
-        if len(fixed_points) >= 20:
+    fixed_points = [] # 確定点格納用
+    num = 0
+    while num < MAXIMUM_NUMBER_OF_SEARCHES:
+        if len(fixed_points) >= MAXIMUM_NUMBER_OF_POINTS:
             break
 
         flg_P = False
@@ -130,10 +134,9 @@ def generate_points():
             pds_y = random.uniform(y_min, y_max)
             pds_z = random.uniform(z_min, z_max)
             pds_point = [pds_x, pds_y, pds_z]
-            #pds_point = [0, 0, 5]
+    
             # 物体内部の点か判定
             flg_P = CNA.cramer(pds_point)
-            #print(flg_P)
 
 
         # 生成点の座標情報をPointに格納し候補点にする
@@ -168,9 +171,6 @@ def generate_points():
     #重複した座標を削除
     fixed_points = np.unique(fixed_points, axis=0)
 
-    # PDS点群に表面点群を連結
-    #CNA.outline(fixed_points)
-
     # ply にPDSの結果出力
     print("fixed_points  = ", len(fixed_points), "個")
     with open(file_resultPly, 'w', newline="") as f:
@@ -188,13 +188,16 @@ def generate_points():
     with open(file_resultCsv, 'w', newline="") as f:
         writer = csv.writer(f)
         writer.writerows(fixed_points)
-
+    
 
 
 
 
 if __name__ == '__main__':
     start = time.time()  # 時間計測用
-    generate_points() #点群生成
-    elapsed_time = time.time() - start #時間計測結果
+    main() # 点群生成
+    
+    # 時間計測結果の表示
+    elapsed_time = time.time() - start 
     print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
+
