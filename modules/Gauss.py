@@ -1,19 +1,18 @@
-#モジュールインポート
 import numpy as np
 
+#ガウスの消去法
 class Gauss:
     def __init__(self, points):
         #前提条件の入力
         self.N = len(points)
         self.A = []
-        print('N : ' , self.N, 'A: ',self.A)
+        
         for i in range(self.N):
             A_ = []
             for j in range(self.N):
                 phi = np.linalg.norm(points[i, 1:4] - points[j, 1:4])
                 A_.append(phi)
             A_.extend([1, points[i, 1], points[i, 2], points[i, 3]])
-            #print('A_i: ', i)
             self.A.append(A_)
 
         # [1,...,1, 0, 0, 0, 0] の作成
@@ -38,10 +37,7 @@ class Gauss:
         z2_ = [0]*4
         z_.extend(z2_)
         self.A.append(z_)
-        print('A: ', np.shape(self.A))
-
         self.B=np.append(points[:,4], [0,0,0,0])
-        print('B = ', len(self.B))
     
     #部分ピポット選択
     def select_pivot(self, xs, i):
@@ -63,12 +59,10 @@ class Gauss:
             for j in range(i + 1, n):
                 temp = zs[j, i] / zs[i, i]
                 zs[j, i:] -= temp * zs[i, i:]
-        print(zs)
         # 後退代入
         for i in range(n - 1, -1, -1):
             zs[i, n] -= zs[i, i+1:n] @ zs[i+1:, n]
             zs[i, n] /= zs[i, i]
-        print('zs: ', len(zs))
         return zs[:, n], zs[:self.N, n], zs[self.N:, n]
 
 
