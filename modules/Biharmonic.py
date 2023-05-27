@@ -1,5 +1,6 @@
 import numpy as np
 
+#Biharmonicを用いたRBF補間
 class Biharmonic:
     def __init__(self, points, cs, lambdas):
         self.N = len(points)
