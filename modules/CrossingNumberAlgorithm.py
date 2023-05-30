@@ -6,8 +6,7 @@ from modules import Biharmonic
 
 #交差数判定法
 class CrossingNumberAlgorithm:
-    def __init__(self):
-        self.lefts = np.array([[None, None, None]])
+    def __init__(self, SPLIT):
         #self.origin = np.array([(x_max+x_min)/2, (y_max+y_min)/2, (z_max+z_min)/2])
         # 表面形状データの読み込み
         print("読み込み中...")
@@ -17,7 +16,7 @@ class CrossingNumberAlgorithm:
         count = 1
         for line in f.readlines():
             # vertexとfaceに分けてlist化
-            if count < 3313: # vertex 形状データによって値を変更
+            if count < SPLIT: # vertex 形状データによって値を変更
                 self.list1.append(line.split())
             else: # list
                 self.list2.append(line.split())
@@ -160,7 +159,6 @@ class CrossingNumberAlgorithm:
             OA = v1 - v0
             OB = v2 - v0
 
-
             left = [[OA[0], OB[0], ray[0]], 
                     [OA[1], OB[1], ray[1]], 
                     [OA[2], OB[2], ray[2]]]
@@ -171,11 +169,9 @@ class CrossingNumberAlgorithm:
 
             if t>=0 and u>=0 and u<=1 and v>=0 and v<=1 and u+v>=0 and u+v<=1:
                 cross_num += 1 #三角形の平面内で交点を持つ → カウント
-                #print("u, v, t = ", u, v, t)
             else:
                 continue #三角形の平面外で交点を持つ
         
-        #print("cross_num", cross_num)
         if cross_num % 2 == 0:
             flg = False #外側
         else:
