@@ -7,7 +7,7 @@ class CheckDistance:
 
     def check_distance(self, fixed_points, candidate_point, stress):
         density = stress_to_density(stress) # 応力から密度の変換
-        long = density_to_long(self, density) # 密度から点間距離の変換
+        long = self.COEFFICIENT_OF_LONG * density_to_long(density) # 密度から点間距離の変換
 
         # 点間距離内に他の点が含まれているか否かを判定．
         # 点間距離内に他の点が含まれていたらFalseを返す
@@ -35,6 +35,6 @@ def stress_to_density(stress):
     return density
 
 # 密度と点間距離の関係式
-def density_to_long(self, density):
+def density_to_long(density):
     long = 6 * 0.1 * math.sqrt(math.sqrt(2)*math.pi/ density)
-    return self.COEFFICIENT_OF_LONG * long
+    return long
