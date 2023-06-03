@@ -7,10 +7,12 @@ import csv
 import time
 from modules import CrossingNumberAlgorithm
 
+# define
+SPLIT = 3313 # CNAで用いる．vertexとfaceの分け目．
 
 start = time.time()  # 時間計測用
 
-Input_file = 'Input/result_4to6_surface_450_5762_delaunay.csv' # Inputファイル
+Input_file = 'Input/Delaunay/result_2002_delaunay.csv' # Inputファイル
 Output_file = 'Output/Drawing_Mesh/Drawing_Mesh_ver2.ply' # Outputファイル
 
 vertices = [] # Input_file用
@@ -20,7 +22,7 @@ edges = [] # ply edge用
 vertices = np.loadtxt(Input_file, delimiter=',')
 
 # CrossNumberAlgorithm
-CNA = CrossingNumberAlgorithm.CrossingNumberAlgorithm()
+CNA = CrossingNumberAlgorithm.CrossingNumberAlgorithm(SPLIT)
 
 print(len(vertices))
 print(vertices)
