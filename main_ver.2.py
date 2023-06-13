@@ -15,13 +15,15 @@ import random
 
 # define
 MAXIMUM_NUMBER_OF_SEARCHES = 800 # 点が連続でN回生成できなかったら終了
-MAXIMUM_NUMBER_OF_POINTS = 500 # 最大生成点数
-COEFFICIENT_OF_LONG = 7 # 点間距離に掛ける係数
+MAXIMUM_NUMBER_OF_POINTS = 10 # 物体内部最大生成点数
+COEFFICIENT_OF_LONG = 10 # 点間距離に掛ける係数
 SPLIT = 3313 # CNAで用いる．vertexとfaceの分け目．
+PITCH = 2 # 物体表面に点群を生成するときに用いる．
+RATE_OF_THINNINGS = 0.2 # 間引き後の点の割合
 
 # Inputファイル
 input_path = './Input/Column10_0615.csv' # ANSYSのデータファイル
-# input_path = './Input/square1220.csv' # ANSYSのデータファイル\
+# input_path = './Input/square1220.csv' # ANSYSのデータファイル
 # input_path = './Input/joint.csv' # ANSYSのデータファイル
 
 # Outputファイル
@@ -108,6 +110,7 @@ def main():
         # Biharmonicより候補点の応力を導出
         new_stress = biharmonic.cal(candidate_point.x, candidate_point.y, candidate_point.z)
         
+        # 点間距離内に他の点が含まれているか否かを判定
         flg = CD.check_distance(fixed_points, candidate_point, new_stress)
 
         # 点間距離内に他の点が存在しないとき候補点を確定点に追加
@@ -119,6 +122,9 @@ def main():
         else :
             num = num + 1
             print('num : ', num)
+
+    #物体表面上でPDS
+    CNA.surface_kikalab(fixed_points, PITCH, RATE_OF_THINNINGS)
 
     #重複した座標を削除
     fixed_points = np.unique(fixed_points, axis=0)
