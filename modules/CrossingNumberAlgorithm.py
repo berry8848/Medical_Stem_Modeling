@@ -123,9 +123,16 @@ class CrossingNumberAlgorithm:
             p0 = self.np_list1[list2[0]]
             p1 = self.np_list1[list2[1]]
             p2 = self.np_list1[list2[2]]
-            base = np.linalg.norm(p1-p2) #三角形の底辺
+            base0 = np.linalg.norm(p1-p2) #三角形の底辺
+            base1 = np.linalg.norm(p2-p0) #三角形の底辺
+            base2 = np.linalg.norm(p0-p1) #三角形の底辺
             area = calculate_triangle_area(p0, p1, p2) #三角形の面積
-            ndiv = int(2*area/(base*PITCH)) + 1.0 #int()+1とすることでndiv>=1となるため，hがpitchより小さいとき生成される点は三頂点のみになる
+            h0 = 2*area/base0
+            h1 = 2*area/base1
+            h2 = 2*area/base2
+            hight = max([h0, h1, h2])
+            #print('hight比較：',h0,h1,h2,hight)
+            ndiv = int(hight/PITCH) + 1.0 #int()+1とすることでndiv>=1となるため，hがpitchより小さいとき生成される点は三頂点のみになる
             l0_points = [] #l0上の区分点
             l1_points = [] #l1上の区分点
 
