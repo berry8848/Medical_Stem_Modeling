@@ -116,16 +116,16 @@ class CrossingNumberAlgorithm:
                 print('num : ', num)
 
     #物体表面上に点を生成（キカラボさん手法）       
-    def surface_kikalab(self, fixed_points):
+    def surface_kikalab(self, fixed_points, PITCH, RATE_OF_THINNINGS):
+        tentative_points = [] # 物体表面上の点群用
         for list2 in self.np_list2:
             #値の設定
-            pitch = 3
             p0 = self.np_list1[list2[0]]
             p1 = self.np_list1[list2[1]]
             p2 = self.np_list1[list2[2]]
             base = np.linalg.norm(p1-p2) #三角形の底辺
             area = calculate_triangle_area(p0, p1, p2) #三角形の面積
-            ndiv = int(2*area/(base*pitch)) + 1.0 #int()+1とすることでndiv>=1となるため，hがpitchより小さいとき生成される点は三頂点のみになる
+            ndiv = int(2*area/(base*PITCH)) + 1.0 #int()+1とすることでndiv>=1となるため，hがpitchより小さいとき生成される点は三頂点のみになる
             l0_points = [] #l0上の区分点
             l1_points = [] #l1上の区分点
 
@@ -139,12 +139,18 @@ class CrossingNumberAlgorithm:
             #di上にndiv_i等分した点の座標を求める
             i = 0
             while i < len(l0_points):
-                ndiv_i = int(np.linalg.norm(l0_points[i]-l1_points[i])/pitch)+1.0
+                ndiv_i = int(np.linalg.norm(l0_points[i]-l1_points[i])/PITCH)+1.0
                 j = 0
                 while j <= ndiv_i:
-                    fixed_points.append(l0_points[i] + j * (l1_points[i] - l0_points[i]) / ndiv_i)
+                    tentative_points.append(l0_points[i] + j * (l1_points[i] - l0_points[i]) / ndiv_i)
                     j+=1
                 i+=1
+        
+        print('len(tentative_points) = ', len(tentative_points))
+        tentative_points = thinning(tentative_points, RATE_OF_THINNINGS) # 間引き
+        print('間引きlen(tentative_points) = ', len(tentative_points))
+        fixed_points.extend(tentative_points)
+        print('len(fixed_points) = ', len(fixed_points))
 
 
     def cramer(self, pds_point): #クラメルの公式を用いて内外判定
@@ -215,7 +221,7 @@ def calculate_triangle_area(p0, p1, p2):
     area = 0.5 * np.linalg.norm(cross_product)
     return area
 
-#直線p1-p2上にl/ndiv間隔で点列を取得
+# 直線p1-p2上にl/ndiv間隔で点列を取得
 def point_sequence(p1, p2, ndiv):
     #単位ベクトルの生成
     e = (p2-p1)/np.linalg.norm(p2-p1)
@@ -223,4 +229,20 @@ def point_sequence(p1, p2, ndiv):
     i=0
     while i < ndiv:
         points.append(p1 + i*e)
+    return points
+
+
+# 間引き
+def thinning(points, RATE_OF_THINNINGS):
+    points = np.unique(points, axis=0) #重複した座標を削除
+    points = points.tolist() # ndarrayをlistに変換
+    print('重複削除len(tentative) = ' , len(points))
+    num_trials = math.floor(len(points)*(1.0 - RATE_OF_THINNINGS))
+    print('num_trials = ' , num_trials)
+
+    for _ in range(num_trials):
+        num_points = len(points)
+        target = random.randint(0, num_points-1)
+        del points[target]
+
     return points
