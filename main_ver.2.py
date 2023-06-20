@@ -15,16 +15,16 @@ import random
 
 # define
 MAXIMUM_NUMBER_OF_SEARCHES = 800 # 点が連続でN回生成できなかったら終了
-MAXIMUM_NUMBER_OF_POINTS = 10 # 物体内部最大生成点数
-COEFFICIENT_OF_LONG = 10 # 点間距離に掛ける係数
-SPLIT = 3313 # CNAで用いる．vertexとfaceの分け目．
-PITCH = 2 # 物体表面に点群を生成するときに用いる．
-RATE_OF_THINNINGS = 0.2 # 間引き後の点の割合
+MAXIMUM_NUMBER_OF_POINTS = 1000 # 物体内部最大生成点数
+COEFFICIENT_OF_LONG = 1 # 点間距離に掛ける係数
+# SPLIT = 3313 # CNAで用いる．vertexとfaceの分け目．
+SPLIT = 703 # CNAで用いる．vertexとfaceの分け目．faceの最初の行数を入力
+PITCH = 1 # 物体表面に点群を生成するときに用いる．
+RATE_OF_THINNINGS = 0.05 # 間引き後の点の割合．例：0.05→5%
 
 # Inputファイル
-input_path = './Input/Column10_0615.csv' # ANSYSのデータファイル
-# input_path = './Input/square1220.csv' # ANSYSのデータファイル
-# input_path = './Input/joint.csv' # ANSYSのデータファイル
+# input_path = './Input/Column10_0615.csv' # ANSYSのデータファイル
+input_path = './Input/cube_50x50mm.csv' # ANSYSのデータファイル
 
 # Outputファイル
 result_ply_path = 'Output/result_main/result.ply'
@@ -39,12 +39,23 @@ def main():
     points = np.loadtxt(input_path, delimiter=',')
     print('points = ',points[0:3])
 
+    # 応力値の絶対値の最大，最小を求め，-1~1に正規化
+    abs_stress = [abs(row[4]) for row in points]
+    max_stress = max(abs_stress)
+    min_stress = min(abs_stress)
+    print('max_stress = ', max_stress, 'min_stress = ', min_stress)
+    # 応力値を正規化
+    for row in points:
+        row[4]/=(max_stress-min_stress)
+    print('norm_points = ',points[0:3])
 
+    
     # FEMの節点の読み込み
     for i in range(len(points)):
         point = Point.Point(points[i]) # クラスに格納
         point.system_guid_obj_to_coordinate()
         points_obj_list.append(point)
+    
 
     # Gauss
     gauss = Gauss.Gauss(points)
@@ -60,7 +71,7 @@ def main():
     y_min = points[0][2]
     z_max = points[0][3]
     z_min = points[0][3]
-
+    
     for point in points:
         if point[1] > x_max:
             x_max = point[1]
@@ -85,6 +96,7 @@ def main():
     # 交差数判定法
     CNA = CrossingNumberAlgorithm.CrossingNumberAlgorithm(SPLIT)
 
+
     # PDS用
     CD = CheckDistance.CheckDistance(COEFFICIENT_OF_LONG)
 
@@ -100,6 +112,7 @@ def main():
             pds_y = random.uniform(y_min, y_max)
             pds_z = random.uniform(z_min, z_max)
             pds_point = [pds_x, pds_y, pds_z]
+            #print("pds_point : ",pds_point)
     
             # 物体内部の点か判定
             flg_P = CNA.cramer(pds_point)
@@ -124,7 +137,7 @@ def main():
             print('num : ', num)
 
     #物体表面上でPDS
-    CNA.surface_kikalab(fixed_points, PITCH, RATE_OF_THINNINGS)
+    # CNA.surface_kikalab(fixed_points, PITCH, RATE_OF_THINNINGS)
 
     #重複した座標を削除
     fixed_points = np.unique(fixed_points, axis=0)
