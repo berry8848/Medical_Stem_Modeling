@@ -27,11 +27,13 @@ class CheckDistance:
     
 # 応力と密度の関係式．※関係式が微妙なため，臨時で別の関数
 def stress_to_density(stress):
-    if stress >= 0: #生データが正の場合，0を返す．（通常はマイナスの値をとる）
-        density = 1.448
-    else:
-        #density = -stress/15
-        density = 3*0.00001*(stress)*(stress) + 0.01*(stress) + 1.448
+    # if stress >= 0: #生データが正の場合，0を返す．（通常はマイナスの値をとる）
+    #     density = 1.448
+    # else:
+    #     #density = -stress/15
+    #     density = 3*0.00001*(stress)*(stress) + 0.01*(stress) + 1.448
+    #density = 3*0.00001*(stress)*(stress) + 0.01*(-abs(stress)) + 1.448
+    density = abs(stress)
     return density
 
 # 密度と点間距離の関係式
