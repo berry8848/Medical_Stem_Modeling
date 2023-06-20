@@ -10,7 +10,7 @@ class CrossingNumberAlgorithm:
         #self.origin = np.array([(x_max+x_min)/2, (y_max+y_min)/2, (z_max+z_min)/2])
         # 表面形状データの読み込み
         print("読み込み中...")
-        f = open("Input/SYS.txt")
+        f = open("Input/Mesh_Data/cube_50x50mm_mesh.txt")
         self.list1 = []
         self.list2 = []
         count = 1
@@ -21,11 +21,11 @@ class CrossingNumberAlgorithm:
             else: # list
                 self.list2.append(line.split())
             count+=1
-            # strをfloatに変換
-            self.list1 = [[float(x) for x in y] for y in self.list1]
-            self.list2 = [[int(x) for x in y] for y in self.list2]
-        #print('list1 = ',self.list1[:5])
-        #print('list2 = ',self.list2[:5])
+        # strをfloatに変換．list1はメートル表記からmm表記に変換
+        self.list1 = [[float(x) * 1000 for x in y] for y in self.list1]
+        self.list2 = [[int(x) for x in y] for y in self.list2]
+        print('list1 = ',self.list1[:5])
+        print('list2 = ',self.list2[:5])
         print("読み込み終了")
 
         #surface用にnp変換
@@ -130,7 +130,7 @@ class CrossingNumberAlgorithm:
             h0 = 2*area/base0
             h1 = 2*area/base1
             h2 = 2*area/base2
-            hight = max([h0, h1, h2])
+            hight = max([h0, h1, h2]) # 高さを比較し，最大の高さを適用
             #print('hight比較：',h0,h1,h2,hight)
             ndiv = int(hight/PITCH) + 1.0 #int()+1とすることでndiv>=1となるため，hがpitchより小さいとき生成される点は三頂点のみになる
             l0_points = [] #l0上の区分点
@@ -162,7 +162,7 @@ class CrossingNumberAlgorithm:
 
     def cramer(self, pds_point): #クラメルの公式を用いて内外判定
         #ray = self.origin - pds_point
-        ray = np.array([1, 0.1, 0.1]) - pds_point
+        ray = np.array([10, 10, 10]) - pds_point
         cross_num = 0
         for l in self.list2:
             v0 = np.array([self.list1[l[1]][0], self.list1[l[1]][1], self.list1[l[1]][2]]) # [v0_x, v0_y, v0_z]の順
@@ -179,16 +179,19 @@ class CrossingNumberAlgorithm:
             right = pds_point - v0
 
             u, v, t = np.linalg.solve(left, right)
+            #print('u, v, t = ', u, v, t)
 
             if t>=0 and u>=0 and u<=1 and v>=0 and v<=1 and u+v>=0 and u+v<=1:
                 cross_num += 1 #三角形の平面内で交点を持つ → カウント
             else:
                 continue #三角形の平面外で交点を持つ
         
+        #print('cross_num', cross_num)
         if cross_num % 2 == 0:
             flg = False #外側
         else:
             flg = True #内側
+        #print('内外判定結果：', flg)
         return flg
 
 
