@@ -6,11 +6,17 @@ class CheckDistance:
     def __init__(self, COEFFICIENT_OF_LONG, ALLOWABLE_STRESS):
         self.COEFFICIENT_OF_LONG = COEFFICIENT_OF_LONG
         self.ALLOWABLE_STRESS = ALLOWABLE_STRESS
+        self.max_density = -999999
+        self.min_density = 999999
 
     def check_distance(self, fixed_points, candidate_point, stress):
         density = stress_to_density(stress, self.ALLOWABLE_STRESS) # 応力から密度の変換
         long = self.COEFFICIENT_OF_LONG * density_to_long(density) # 密度から点間距離の変換
 
+        if density > self.max_density:
+            self.max_density = density
+        if density < self.min_density:
+            self.min_density = density
         # 点間距離内に他の点が含まれているか否かを判定．
         # 点間距離内に他の点が含まれていたらFalseを返す
         b_x = candidate_point.x 
@@ -27,6 +33,10 @@ class CheckDistance:
                 break
         return check
     
+    def print_max_min_density(self):
+        print('max_density : ', self.max_density)
+        print('min_density : ', self.min_density)
+    
 # 応力と密度の関係式．※関係式が微妙なため，臨時で別の関数
 def stress_to_density(stress, ALLOWABLE_STRESS):
     # if stress >= 0: #生データが正の場合，0を返す．（通常はマイナスの値をとる）
@@ -37,7 +47,7 @@ def stress_to_density(stress, ALLOWABLE_STRESS):
     #density = 3*0.00001*(stress)*(stress) + 0.01*(-abs(stress)) + 1.448
     density = abs(stress) / ALLOWABLE_STRESS
     if density > 1.0:
-        print('密度が1.0を超えたので終了します．応力値：', stress))
+        print('密度が1.0を超えたので終了します．応力値：', stress)
         sys.exit()
     return density
 
