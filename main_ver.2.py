@@ -40,15 +40,15 @@ def main():
     points = np.loadtxt(input_path, delimiter=',')
     print('points = ',points[0:3])
 
-    # 応力値の絶対値の最大，最小を求め，-1~1に正規化
-    abs_stress = [abs(row[4]) for row in points]
-    max_stress = max(abs_stress)
-    min_stress = min(abs_stress)
-    print('max_stress = ', max_stress, 'min_stress = ', min_stress)
-    # 応力値を正規化
-    for row in points:
-        row[4]/=(max_stress-min_stress)
-    print('norm_points = ',points[0:3])
+    # # 応力値の絶対値の最大，最小を求め，-1~1に正規化
+    # abs_stress = [abs(row[4]) for row in points]
+    # max_stress = max(abs_stress)
+    # min_stress = min(abs_stress)
+    # print('max_stress = ', max_stress, 'min_stress = ', min_stress)
+    # # 応力値を正規化
+    # for row in points:
+    #     row[4]/=(max_stress-min_stress)
+    # print('norm_points = ',points[0:3])
 
     
     # FEMの節点の読み込み
@@ -123,7 +123,6 @@ def main():
         candidate_point.pds_coordinate()
         # Biharmonicより候補点の応力を導出
         new_stress = biharmonic.cal(candidate_point.x, candidate_point.y, candidate_point.z)
-        
         # 点間距離内に他の点が含まれているか否かを判定
         flg = CD.check_distance(fixed_points, candidate_point, new_stress)
 
@@ -137,8 +136,11 @@ def main():
             num = num + 1
             print('num : ', num)
 
-    #物体表面上でPDS
-    CNA.surface_kikalab(fixed_points, PITCH, RATE_OF_THINNINGS)
+    #max，minのdensityを表示
+    CD.print_max_min_density()
+
+    # #物体表面上でPDS
+    # CNA.surface_kikalab(fixed_points, PITCH, RATE_OF_THINNINGS)
 
     #重複した座標を削除
     fixed_points = np.unique(fixed_points, axis=0)
