@@ -1,12 +1,14 @@
 import math
+import sys
 
 class CheckDistance:
     '''応力値から点間距離を求め，点間距離内に他の点が含まれるか否かを判断する'''
-    def __init__(self, COEFFICIENT_OF_LONG):
+    def __init__(self, COEFFICIENT_OF_LONG, ALLOWABLE_STRESS):
         self.COEFFICIENT_OF_LONG = COEFFICIENT_OF_LONG
+        self.ALLOWABLE_STRESS = ALLOWABLE_STRESS
 
     def check_distance(self, fixed_points, candidate_point, stress):
-        density = stress_to_density(stress) # 応力から密度の変換
+        density = stress_to_density(stress, self.ALLOWABLE_STRESS) # 応力から密度の変換
         long = self.COEFFICIENT_OF_LONG * density_to_long(density) # 密度から点間距離の変換
 
         # 点間距離内に他の点が含まれているか否かを判定．
@@ -26,14 +28,17 @@ class CheckDistance:
         return check
     
 # 応力と密度の関係式．※関係式が微妙なため，臨時で別の関数
-def stress_to_density(stress):
+def stress_to_density(stress, ALLOWABLE_STRESS):
     # if stress >= 0: #生データが正の場合，0を返す．（通常はマイナスの値をとる）
     #     density = 1.448
     # else:
     #     #density = -stress/15
     #     density = 3*0.00001*(stress)*(stress) + 0.01*(stress) + 1.448
     #density = 3*0.00001*(stress)*(stress) + 0.01*(-abs(stress)) + 1.448
-    density = abs(stress)
+    density = abs(stress) / ALLOWABLE_STRESS
+    if density > 1.0:
+        print('密度が1.0を超えたので終了します．')
+        sys.exit()
     return density
 
 # 密度と点間距離の関係式
