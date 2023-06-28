@@ -37,7 +37,7 @@ def stress_to_density(stress, ALLOWABLE_STRESS):
     #density = 3*0.00001*(stress)*(stress) + 0.01*(-abs(stress)) + 1.448
     density = abs(stress) / ALLOWABLE_STRESS
     if density > 1.0:
-        print('密度が1.0を超えたので終了します．')
+        print('密度が1.0を超えたので終了します．応力値：', stress))
         sys.exit()
     return density
 
