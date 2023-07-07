@@ -15,7 +15,7 @@ import random
 
 # define
 MAXIMUM_NUMBER_OF_SEARCHES = 800 # 点が連続でN回生成できなかったら終了
-MAXIMUM_NUMBER_OF_POINTS = 1000 # 物体内部最大生成点数
+MAXIMUM_NUMBER_OF_POINTS = 0 # 物体内部最大生成点数
 COEFFICIENT_OF_LONG = 1 # 点間距離に掛ける係数
 # SPLIT = 3313 # CNAで用いる．vertexとfaceの分け目．
 SPLIT = 703 # CNAで用いる．vertexとfaceの分け目．faceの最初の行数を入力
@@ -139,8 +139,8 @@ def main():
     #max，minのdensityを表示
     CD.print_max_min_density()
 
-    # #物体表面上でPDS
-    # CNA.surface_kikalab(fixed_points, PITCH, RATE_OF_THINNINGS)
+    #物体表面上でPDS
+    CNA.surface_kikalab(fixed_points, PITCH, RATE_OF_THINNINGS)
 
     #重複した座標を削除
     fixed_points = np.unique(fixed_points, axis=0)
