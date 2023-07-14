@@ -41,13 +41,17 @@ for simplice in tri.simplices:
     flg23 = CNA.cramer((vertices[simplice[2]]+vertices[simplice[3]])/2)
 
     # Trueのとき，edge生成
-    if flg01: edges.append([simplice[0] + simplice[1]])
-    if flg02: edges.append([simplice[0] + simplice[2]])
-    if flg03: edges.append([simplice[0] + simplice[3]])
-    if flg12: edges.append([simplice[1] + simplice[2]])
-    if flg13: edges.append([simplice[1] + simplice[3]])
-    if flg23: edges.append([simplice[2] + simplice[3]])
+    if flg01: edges.append([simplice[0], simplice[1]])
+    if flg02: edges.append([simplice[0], simplice[2]])
+    if flg03: edges.append([simplice[0], simplice[3]])
+    if flg12: edges.append([simplice[1], simplice[2]])
+    if flg13: edges.append([simplice[1], simplice[3]])
+    if flg23: edges.append([simplice[2], simplice[3]])
 
+print('edge 重複削除前個数：', len(edges))
+#重複した座標を削除
+edges = np.unique(edges, axis=0)
+print('edge 重複削除後個数：', len(edges))
 
 # plyで保存
 with open(Output_file, 'w', newline="") as f:
