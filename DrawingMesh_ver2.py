@@ -12,7 +12,7 @@ SPLIT = 3313 # CNAで用いる．vertexとfaceの分け目．
 
 start = time.time()  # 時間計測用
 
-Input_file = 'Input/Delaunay_c++/result_2002_delaunay.csv' # Inputファイル
+Input_file = 'Input/Delaunay_C++/result_2002_delaunay.csv' # Inputファイル
 Output_file = 'Output/Drawing_Mesh/Drawing_Mesh_ver2.ply' # Outputファイル
 
 vertices = [] # Input_file用
