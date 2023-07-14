@@ -2,16 +2,16 @@
 # 内容が分かりやすいため、基本こっちを使う。
 
 import numpy as np
-import csv
-
 import time
 from modules import CrossingNumberAlgorithm
 
+# define
+SPLIT = 703 # CNAで用いる．vertexとfaceの分け目．
 
 start = time.time()  # 時間計測用
 
-Input_file = 'Input/result_4to6_surface_450_5762_delaunay.csv' # Inputファイル
-Output_file = 'Output/Drawing_Mesh.ply' # Outputファイル
+Input_file = 'Input/Delaunay_C++/check2_delaunay.csv' # Inputファイル
+Output_file = 'Output/Drawing_Mesh/Drawing_Mesh_ver1.ply' # Outputファイル
 
 vertices = [] # Input_file用
 faces = [] # 面法線ベクトル用
@@ -20,7 +20,7 @@ faces = [] # 面法線ベクトル用
 vertices = np.loadtxt(Input_file, delimiter=',')
 
 # CrossNumberAlgorithm
-CNA = CrossingNumberAlgorithm.CrossingNumberAlgorithm()
+CNA = CrossingNumberAlgorithm.CrossingNumberAlgorithm(SPLIT)
 
 print(len(vertices))
 
@@ -51,8 +51,6 @@ for i in range(0, len(vertices), 4):
 
 # listをnumpyに変換
 faces = np.array(faces)
-
-
 
 # plyで保存
 with open(Output_file, 'w', newline="") as f:
