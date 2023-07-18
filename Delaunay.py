@@ -11,6 +11,7 @@ edges = [] # PLYファイルのedge用
 
 
 Input_file = 'Output/result_main/result_112.csv' # Inputファイル
+mesh_data = 'Input/Mesh_Data/cube_50x50mm_mesh.txt' # 物体の表面形状データ。
 Output_file = 'Output/Delaunay_Python/delaunay_mesh.ply' # Outputファイル
 
 # ファイルの読み込み。物体の頂点を定義する
@@ -22,16 +23,13 @@ tri = Delaunay(vertices)
 print('simplices：', tri.simplices)
 
 # CrossNumberAlgorithm
-CNA = CrossingNumberAlgorithm.CrossingNumberAlgorithm(SPLIT)
+CNA = CrossingNumberAlgorithm.CrossingNumberAlgorithm(SPLIT, mesh_data)
 
 print('len(tri.simplice)：', len(tri.simplices))
 i = 0
 
 # edgeノードの作成
 for simplice in tri.simplices:
-    print(i)
-    i+=1
-
     # 各稜線の中点が物体の内側か外側かを判断する。内側だとTrue、外側だとFalseを返す。
     flg01 = CNA.cramer((vertices[simplice[0]]+vertices[simplice[1]])/2)
     flg02 = CNA.cramer((vertices[simplice[0]]+vertices[simplice[2]])/2)
@@ -47,6 +45,9 @@ for simplice in tri.simplices:
     if flg12: edges.append([simplice[1], simplice[2]])
     if flg13: edges.append([simplice[1], simplice[3]])
     if flg23: edges.append([simplice[2], simplice[3]])
+
+    print(i)
+    i+=1
 
 print('edge 重複削除前個数：', len(edges))
 #重複した座標を削除
