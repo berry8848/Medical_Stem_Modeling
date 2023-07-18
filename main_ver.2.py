@@ -15,7 +15,7 @@ import random
 
 # define
 MAXIMUM_NUMBER_OF_SEARCHES = 800 # 点が連続でN回生成できなかったら終了
-MAXIMUM_NUMBER_OF_POINTS = 0 # 物体内部最大生成点数
+MAXIMUM_NUMBER_OF_POINTS = 100 # 物体内部最大生成点数
 COEFFICIENT_OF_LONG = 1 # 点間距離に掛ける係数
 # SPLIT = 3313 # CNAで用いる．vertexとfaceの分け目．
 SPLIT = 703 # CNAで用いる．vertexとfaceの分け目．faceの最初の行数を入力
@@ -26,6 +26,7 @@ ALLOWABLE_STRESS = 186 #チタン合金．降伏強さ930MPa．安全率5
 # Inputファイル
 # input_path = './Input/Column10_0615.csv' # ANSYSのデータファイル
 input_path = './Input/cube_50x50mm.csv' # ANSYSのデータファイル
+mesh_data = 'Input/Mesh_Data/cube_50x50mm_mesh.txt' # 物体の表面形状データ。
 
 # Outputファイル
 result_ply_path = 'Output/result_main/result.ply'
@@ -39,17 +40,6 @@ def main():
     # ANSYS上の点群を取得し座標値を取得
     points = np.loadtxt(input_path, delimiter=',')
     print('points = ',points[0:3])
-
-    # # 応力値の絶対値の最大，最小を求め，-1~1に正規化
-    # abs_stress = [abs(row[4]) for row in points]
-    # max_stress = max(abs_stress)
-    # min_stress = min(abs_stress)
-    # print('max_stress = ', max_stress, 'min_stress = ', min_stress)
-    # # 応力値を正規化
-    # for row in points:
-    #     row[4]/=(max_stress-min_stress)
-    # print('norm_points = ',points[0:3])
-
     
     # FEMの節点の読み込み
     for i in range(len(points)):
@@ -95,7 +85,7 @@ def main():
     print("z_max = ", z_max, "z_min = ", z_min)
 
     # 交差数判定法
-    CNA = CrossingNumberAlgorithm.CrossingNumberAlgorithm(SPLIT)
+    CNA = CrossingNumberAlgorithm.CrossingNumberAlgorithm(SPLIT, mesh_data)
 
 
     # PDS用
@@ -143,7 +133,7 @@ def main():
     CNA.surface_kikalab(fixed_points, PITCH, RATE_OF_THINNINGS)
 
     #重複した座標を削除
-    fixed_points = np.unique(fixed_points, axis=0)
+    fixed_points, _ = np.unique(fixed_points, return_index=True, axis=0)
 
     # ply にPDSの結果出力
     print("fixed_points  = ", len(fixed_points), "個")
