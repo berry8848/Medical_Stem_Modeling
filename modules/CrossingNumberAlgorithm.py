@@ -6,11 +6,11 @@ from modules import Biharmonic
 
 #交差数判定法
 class CrossingNumberAlgorithm:
-    def __init__(self, SPLIT):
+    def __init__(self, SPLIT, mesh_data):
         #self.origin = np.array([(x_max+x_min)/2, (y_max+y_min)/2, (z_max+z_min)/2])
         # 表面形状データの読み込み
         print("読み込み中...")
-        f = open("Input/Mesh_Data/cube_50x50mm_mesh.txt")
+        f = open(mesh_data)
         self.list1 = []
         self.list2 = []
         count = 1
@@ -244,7 +244,8 @@ def point_sequence(p1, p2, ndiv):
 
 # 間引き
 def thinning(points, RATE_OF_THINNINGS):
-    points = np.unique(points, axis=0) #重複した座標を削除
+    points, _ = np.unique(points, return_index=True, axis=0) #重複した座標を削除．return_index=Trueとすることでsortなしになる
+    print(points)
     points = points.tolist() # ndarrayをlistに変換
     print('重複削除len(tentative) = ' , len(points))
     num_trials = math.floor(len(points)*(1.0 - RATE_OF_THINNINGS))
