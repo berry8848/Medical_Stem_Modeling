@@ -183,6 +183,9 @@ class CrossingNumberAlgorithm:
 
             if t>=0 and u>=0 and u<=1 and v>=0 and v<=1 and u+v>=0 and u+v<=1:
                 cross_num += 1 #三角形の平面内で交点を持つ → カウント
+                print('u, v, t = ', u, v, t)
+                #print('{:.1000f}'.format(u))
+
             else:
                 continue #三角形の平面外で交点を持つ
         
@@ -257,3 +260,30 @@ def thinning(points, RATE_OF_THINNINGS):
         del points[target]
 
     return points
+
+
+# PDSを用いた間引き
+def thinning_pds(points, PDS_PITCH):
+    PDS_PITCH_SQUARE = PDS_PITCH**2
+    fixed_points = [] # 確定点
+    fixed_points.append(points[0])
+
+    for attention_point in points:
+        flg = True
+        for fixed_point in fixed_points:
+            x1, y1, z1 = attention_point
+            x2, y2, z2 = fixed_point
+            distance_square = (x2 - x1)**2 + (y2 - y1)**2 + (z2 - z1)**2
+
+            if distance_square < PDS_PITCH_SQUARE:
+                # PDSピッチ内に他の点が存在したとき、注目点と確定点の比較を終了。
+                flg = False
+                pass
+        
+        if flg:
+            fixed_points.append(attention_point)
+
+
+
+
+    return fixed_points
