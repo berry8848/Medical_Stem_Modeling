@@ -78,11 +78,17 @@ def main():
             z_max = point[3]
         if point[3] < z_min:
             z_min = point[3]
+    
+    # スーパーボックスの作成．物体表面の間引きの際のvoxelで用いる．
+    super_box = [x_max+1.0, x_min-1.0, 
+                 y_max+1.0, y_min-1.0, 
+                 z_max+1.0, z_min-1.0]
 
     # PDSでの点の生成範囲の表示
     print("x_max = ", x_max, "x_min = ", x_min)
     print("y_max = ", y_max, "y_min = ", y_min)
     print("z_max = ", z_max, "z_min = ", z_min)
+    print('super_box : ', super_box)
 
     # 交差数判定法
     CNA = CrossingNumberAlgorithm.CrossingNumberAlgorithm(SPLIT, mesh_data)
