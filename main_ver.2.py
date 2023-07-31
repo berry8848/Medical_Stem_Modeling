@@ -15,13 +15,14 @@ import random
 
 # define
 MAXIMUM_NUMBER_OF_SEARCHES = 800 # 点が連続でN回生成できなかったら終了
-MAXIMUM_NUMBER_OF_POINTS = 100 # 物体内部最大生成点数
+MAXIMUM_NUMBER_OF_POINTS = 1 # 物体内部最大生成点数
 COEFFICIENT_OF_LONG = 1 # 点間距離に掛ける係数
 # SPLIT = 3313 # CNAで用いる．vertexとfaceの分け目．
 SPLIT = 703 # CNAで用いる．vertexとfaceの分け目．faceの最初の行数を入力
-PITCH = 1 # 物体表面に点群を生成するときに用いる．
+PITCH = 1 # kikalabの物体表面に点群を生成するときに用いる．
 RATE_OF_THINNINGS = 0.05 # 間引き後の点の割合．例：0.05→5%
 ALLOWABLE_STRESS = 186 #チタン合金．降伏強さ930MPa．安全率5
+PDS_PITCH = 2 # 物体表面に生成した点から間引きを行う際のPDSの最小点間距離
 
 # Inputファイル
 # input_path = './Input/Column10_0615.csv' # ANSYSのデータファイル
@@ -136,7 +137,8 @@ def main():
     CD.print_max_min_density()
 
     #物体表面上でPDS
-    CNA.surface_kikalab(fixed_points, PITCH, RATE_OF_THINNINGS)
+    # CNA.surface_kikalab(fixed_points, PITCH, RATE_OF_THINNINGS)
+    CNA.surface_kikalab(fixed_points, PITCH, PDS_PITCH)
 
     #重複した座標を削除
     fixed_points, _ = np.unique(fixed_points, return_index=True, axis=0)
