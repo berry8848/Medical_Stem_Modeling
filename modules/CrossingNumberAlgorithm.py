@@ -1,8 +1,6 @@
 import numpy as np
 import random
 import math
-from modules import Point
-from modules import Biharmonic
 
 #交差数判定法
 class CrossingNumberAlgorithm:
@@ -34,86 +32,8 @@ class CrossingNumberAlgorithm:
         self.np_list1 = self.np_list1[:,0:3] #[x, y, z]座標
         self.np_list2 = self.np_list2[:,1:4] #[点番号１, 点番号2, 点番号3] ex[0, 5, 2]
         # print('np_list1 = ',self.np_list1[:5])
-        # print('np_list2 = ',self.np_list2[:5])
+        # print('np_list2 = ',self.np_list2[:5])    
 
-    def biharmonic(self, points, cs, lambdas):
-        # Biharmonic
-        # surface_pds用．surface_pds消すならこれも消す
-        self.biharmonic = Biharmonic.Biharmonic(points, cs, lambdas)
-        print(self.biharmonic.cal(15.78, 4.09, 52.35))
-
-    #物体表面上に点を2個ずつ配置     
-    def surface(self, fixed_points):
-        for list2 in self.np_list2:
-            # 三角形メッシュの中心に点を生成(1つ目の点)
-            pds_point = (self.np_list1[list2[0]]+self.np_list1[list2[1]]+self.np_list1[list2[2]])/3
-            fixed_points.append(pds_point)
-
-            #三角形メッシュ内に任意に点を生成（2つ目の点）
-            # # ベクトルの生成
-            # a = self.np_list1[list2[1]] - self.np_list1[list2[0]] 
-            # b = self.np_list1[list2[2]] - self.np_list1[list2[0]]
-            # s = random.random()
-            # t = random.random()
-            # while s+t>1:
-            #     s = random.random()
-            #     t = random.random()
-            # pds_point = self.np_list1[list2[0]] + s*a + t*b #新点の生成
-            # fixed_points.append(pds_point)
-    
-
-    #物体表面上でPDS       
-    def surface_pds(self, fixed_points):
-        N = 800
-        num = 0
-        #表面形状のデータ整理
-        # self.np_list1 = np.array(self.list1)
-        # self.np_list2 = np.array(self.list2)
-        # self.np_list1 = self.np_list1[:,0:3] #[x, y, z]座標
-        # self.np_list2 = self.np_list2[:,1:4] #[点番号１, 点番号2, 点番号3] ex[0, 5, 2]
-
-        # print('np_list1 = ', self.np_list1)
-        # print('np_list2 = ', self.np_list2)
-
-        while num < N:
-            if len(fixed_points) >= 1000: #4to6のPDSの点の数も含む
-                break 
-
-            # 候補点の生成
-            i = random.randint(0, len(self.np_list2)-1)
-            list2 = self.np_list2[i]
-            # ベクトルの生成
-            a = self.np_list1[list2[1]] - self.np_list1[list2[0]] 
-            b = self.np_list1[list2[2]] - self.np_list1[list2[0]]
-            #print(self.np_list1[list2[1]])
-            s = random.random()
-            t = random.random()
-            while s+t>1:
-                s = random.random()
-                t = random.random()
-            pds_point = self.np_list1[list2[0]] + s*a + t*b #新点の生成
-            
-            # 生成点の座標情報をPointに格納し候補点にする
-            candidate_point = Point.Point(pds_point)
-            candidate_point.pds_coordinate()
-            # Biharmonicより候補点の応力を導出
-            new_stress = self.biharmonic.cal(candidate_point.x, candidate_point.y, candidate_point.z)
-            # 導出した応力より候補点の満たすべき密度を導出
-            density = stress_to_density(new_stress)
-            # 導出した密度より候補点の満たすべき点間距離を導出
-            long = density_to_long(density)
-            # 点間距離内に他の点が存在するかを確認
-            flg = check_distance(fixed_points, candidate_point, long)
-
-            # 点間距離内に他の点が存在しないとき候補点を確定点に追加
-            if flg:
-                fixed_points.append(pds_point)
-                num = 0
-                print('num : ', num, 'fixed_points : ', len(fixed_points))
-            # 点間距離内に他の点が存在するとき
-            else :
-                num = num + 1
-                print('num : ', num)
 
     #物体表面上に点を生成（キカラボさん手法）       
     def surface_kikalab(self, fixed_points, PITCH, PDS_PITCH):
