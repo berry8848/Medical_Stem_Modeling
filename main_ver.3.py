@@ -1,6 +1,7 @@
 # 目的：ドロネー分割を節点番号表記に変更．その後，PDSによる点群生成．
 # Input：ドロネー分割の結果（座標値のみ：③の結果）＆　②の結果
 # Output：PDSの点群座標.plyファイル，PDSの点群座標.csvファイル
+# ver3との違い：trimeshをCNAで用いるため，SPLITを消した．またCOEFFICIENT_OF_LONGも消した
 
 from modules import Point
 from modules import Gauss
@@ -16,9 +17,6 @@ import random
 # define
 MAXIMUM_NUMBER_OF_SEARCHES = 800 # 点が連続でN回生成できなかったら終了
 MAXIMUM_NUMBER_OF_POINTS = 1 # 物体内部最大生成点数
-COEFFICIENT_OF_LONG = 1 # 点間距離に掛ける係数
-# SPLIT = 3313 # CNAで用いる．vertexとfaceの分け目．
-SPLIT = 703 # CNAで用いる．vertexとfaceの分け目．faceの最初の行数を入力
 PITCH = 1 # kikalabの物体表面に点群を生成するときに用いる．
 RATE_OF_THINNINGS = 0.05 # 間引き後の点の割合．例：0.05→5%
 ALLOWABLE_STRESS = 186 #チタン合金．降伏強さ930MPa．安全率5
@@ -27,7 +25,7 @@ PDS_PITCH = 2 # 物体表面に生成した点から間引きを行う際のPDS�
 # Inputファイル
 # input_path = './Input/Column10_0615.csv' # ANSYSのデータファイル
 input_path = './Input/cube_50x50mm.csv' # ANSYSのデータファイル
-mesh_data = 'Input/Mesh_Data/cube_50x50mm_mesh.txt' # 物体の表面形状データ。
+mesh_data = 'Input/Mesh_Data/cube_50x50mm_mesh.ply' # 物体の表面形状データ。
 
 # Outputファイル
 result_ply_path = 'Output/result_main/result.ply'
@@ -92,11 +90,11 @@ def main():
     print('super_box : ', super_box)
 
     # 交差数判定法
-    CNA = CrossingNumberAlgorithm.CrossingNumberAlgorithm(SPLIT, mesh_data)
+    CNA = CrossingNumberAlgorithm.CrossingNumberAlgorithm(mesh_data)
 
 
     # PDS用
-    CD = CheckDistance.CheckDistance(COEFFICIENT_OF_LONG, ALLOWABLE_STRESS)
+    CD = CheckDistance.CheckDistance(ALLOWABLE_STRESS)
 
     num = 0
     while num < MAXIMUM_NUMBER_OF_SEARCHES:
