@@ -1,17 +1,17 @@
+# Delaunay分割後、メッシュ生成
+
 import numpy as np
 from scipy.spatial import Delaunay
 import time
 from modules import CrossingNumberAlgorithm
 
-# define
-SPLIT = 703 # CNAで用いる．vertexとfaceの分け目．
-
 start = time.time()  # 時間計測用
 edges = [] # PLYファイルのedge用
 
 
-Input_file = 'Output/result_main/result_112.csv' # Inputファイル
-mesh_data = 'Input/Mesh_Data/cube_50x50mm_mesh.txt' # 物体の表面形状データ。
+# Input_file = 'Output/result_main/result_112.csv' # Inputファイル
+Input_file = 'Output/result_main/check/check2_delaunay.csv' # Inputファイル
+mesh_data = 'Input/Mesh_Data/cube_50x50mm_mesh.ply' # 物体の表面形状データ。
 Output_file = 'Output/Delaunay_Python/delaunay_mesh.ply' # Outputファイル
 
 # ファイルの読み込み。物体の頂点を定義する
@@ -23,7 +23,7 @@ tri = Delaunay(vertices)
 print('simplices：', tri.simplices)
 
 # CrossNumberAlgorithm
-CNA = CrossingNumberAlgorithm.CrossingNumberAlgorithm(SPLIT, mesh_data)
+CNA = CrossingNumberAlgorithm.CrossingNumberAlgorithm(mesh_data)
 
 print('len(tri.simplice)：', len(tri.simplices))
 i = 0
