@@ -3,15 +3,14 @@ import sys
 
 class CheckDistance:
     '''応力値から点間距離を求め，点間距離内に他の点が含まれるか否かを判断する'''
-    def __init__(self, COEFFICIENT_OF_LONG, ALLOWABLE_STRESS):
-        self.COEFFICIENT_OF_LONG = COEFFICIENT_OF_LONG
+    def __init__(self, ALLOWABLE_STRESS):
         self.ALLOWABLE_STRESS = ALLOWABLE_STRESS
         self.max_density = -999999
         self.min_density = 999999
 
     def check_distance(self, fixed_points, candidate_point, stress):
         density = stress_to_density(stress, self.ALLOWABLE_STRESS) # 応力から密度の変換
-        long = self.COEFFICIENT_OF_LONG * density_to_long(density) # 密度から点間距離の変換
+        long = density_to_long(density) # 密度から点間距離の変換
 
         if density > self.max_density:
             self.max_density = density
