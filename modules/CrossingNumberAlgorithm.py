@@ -3,8 +3,9 @@ import random
 import math
 import sys
 import trimesh
-#from decimal import Decimal
 EPSILON = 0.00000001
+
+
 #交差数判定法
 class CrossingNumberAlgorithm:
     def __init__(self, mesh_data):
@@ -17,16 +18,11 @@ class CrossingNumberAlgorithm:
         self.list2 = mesh.faces
         # strをfloatに変換．list1はメートル表記からmm表記に変換
         self.list1 = [[float(x) * 1000 for x in y] for y in self.list1]
-        # self.list2 = [[int(x) for x in y] for y in self.list2]
         print('list1 = ',self.list1[:5])  # 丸め誤差が発生. ex. 25→25.00000037
-        # self.list1 = [[round(x, 3) for x in y] for y in self.list1] # 丸め誤差回避のため小数点以下第3位で切り捨て
-        # print('round_list1 = ',self.list1[:5])
 
         #surface用にnp変換
         self.np_list1 = np.array(self.list1)
         self.np_list2 = np.array(self.list2)
-        # self.np_list1 = self.np_list1[:,0:3] #[x, y, z]座標
-        # self.np_list2 = self.np_list2[:,0:3] #[点番号１, 点番号2, 点番号3] ex[0, 5, 2]
         print('np_list1 = ',self.np_list1[:5])
         print('np_list2 = ',self.np_list2[:5])    
         print('len(np_list1) = ', len(self.np_list1))
@@ -81,9 +77,6 @@ class CrossingNumberAlgorithm:
 
     def cramer(self, pds_point): #クラメルの公式を用いて内外判定
         #ray = self.origin - pds_point
-        # ray = [np.array([0.1, 10, 10]) - pds_point, 
-        #        np.array([10, 10, 1]) - pds_point,
-        #        np.array([10, 1, 10]) - pds_point]
         ray = [10, 10, 9]
         #print('ray : ', ray)
         cross_num = 0
@@ -102,7 +95,6 @@ class CrossingNumberAlgorithm:
 
             # solution = np.linalg.solve(left, right)
             solution = solve_linear_equation(left, right)
-            #solution = gaussian_elimination_3d(OA, OB, ray[0], right)
 
             # 解が存在するか否かを判断
             if solution is not None:
@@ -137,7 +129,6 @@ class CrossingNumberAlgorithm:
     def majority_vote(self, pds_point):
         flg = 0
         ray1 = [10, 10, 3] - pds_point
-        #ray1 = ray1 / np.linalg.norm(ray1)
         ray2 = [7, 30, 10] - pds_point          
         ray3 = [25, 10, 13] - pds_point          
         flg1 = vote(self.list1, self.list2, pds_point, ray1)
@@ -153,80 +144,6 @@ class CrossingNumberAlgorithm:
         else:
             return False
 
-        
-
-
-    def is_point_inside_mesh(point, mesh_vertices):
-        def sign(p1, p2, p3):
-            return (p1[0] - p3[0]) * (p2[1] - p3[1]) - (p2[0] - p3[0]) * (p1[1] - p3[1])
-
-        def point_in_triangle(pt, v1, v2, v3):
-            b1 = sign(pt, v1, v2) < 0.0
-            b2 = sign(pt, v2, v3) < 0.0
-            b3 = sign(pt, v3, v1) < 0.0
-            return b1 == b2 == b3
-
-        for i in range(0, len(mesh_vertices), 3):
-            v1, v2, v3 = mesh_vertices[i], mesh_vertices[i + 1], mesh_vertices[i + 2]
-            if point_in_triangle(point, v1, v2, v3):
-                return True
-
-        return False
-
-
-    # ChatGPTによる生成
-    def ray_triangle_intersection(self, ray_origin):
-        ray_direction = np.array([1, 2, 3])
-        cross_num = 0
-        for l in self.list2:
-            v0 = np.array([self.list1[l[0]][0], self.list1[l[0]][1], self.list1[l[0]][2]]) # [v0_x, v0_y, v0_z]の順
-            v1 = np.array([self.list1[l[1]][0], self.list1[l[1]][1], self.list1[l[1]][2]])
-            v2 = np.array([self.list1[l[2]][0], self.list1[l[2]][1], self.list1[l[2]][2]])
-            
-            # レイの方向を正規化する
-            ray_direction = ray_direction / np.linalg.norm(ray_direction)
-
-            # 三角形のエッジと頂点を定義する
-            edge1 = v1 - v0
-            edge2 = v2 - v0
-            h = np.cross(ray_direction, edge2)
-            a = np.dot(edge1, h)
-
-            # aが0に近い場合、交差は起こらない
-            if abs(a) < 1e-6:
-                continue
-
-            f = 1/a
-            s = ray_origin - v0
-            u = f * np.dot(s, h)
-
-            # uが範囲外の場合、交差は起こらない
-            if u < 0.0 or u > 1.0:
-                continue
-
-            q = np.cross(s, edge1)
-            v = f * np.dot(ray_direction, q)
-
-            # vが範囲外の場合、交差は起こらない
-            if v < 0.0 or u + v > 1.0:
-                continue
-
-            # 交差点のパラメータtを計算する
-            t = f * np.dot(edge2, q)
-
-            # tが非負であれば、交差が起こる
-            if t >= 0.0:
-                # intersection_point = ray_origin + t * ray_direction
-                cross_num+=1
-            else:
-                pass
-        
-        if cross_num % 2 == 0:
-            flg = False #外側
-        else:
-            flg = True #内側
-        #print('内外判定結果：', flg)
-        return flg
     
 def vote(list1, list2, pds_point, ray):
     cross_num = 0
@@ -244,9 +161,7 @@ def vote(list1, list2, pds_point, ray):
                 [OA[1], OB[1], ray[1]], 
                 [OA[2], OB[2], ray[2]]]
 
-        # solution = np.linalg.solve(left, right)
         solution = solve_linear_equation(left, right)
-        #solution = gaussian_elimination_3d(OA, OB, ray[0], right)
 
         # 解が存在するか否かを判断
         if solution is not None:
@@ -257,7 +172,7 @@ def vote(list1, list2, pds_point, ray):
             continue
         #print('u, v, t = ', u, v, t)
 
-        if t+EPSILON<=0 and u>=0 and u<=1 and v>=0 and v<=1 and u+v>=0 and u+v<=1:
+        if t<=-EPSILON and u>=-EPSILON and u<=1+EPSILON and v>=-EPSILON and v<=1+EPSILON and u+v>=-EPSILON and u+v<=1+EPSILON:
             # print('対象の三角形メッシュと衝突しました．')
             # print(f"""
             #   v0: {v0}
@@ -267,30 +182,19 @@ def vote(list1, list2, pds_point, ray):
             # #print('solution: ', solution)
             # print('交点座標1：', pds_point + ray*(-t))
             # print('交点座標2：', v0 + OA*u + OB*v)
-            if u == 0 or v == 0 or u+v == 1:
+            # if u == 0 or v == 0 or u+v == 1:
+            if (-EPSILON<=u and u<=EPSILON) or (-EPSILON<=v and v<=EPSILON) or (-EPSILON<=u+v and u+v<=EPSILON):
                 # print('境界線上に交点が存在します')
                 # print('(u, v, u+v, t) = ', u, v, u+v, t)
                 # print('ray : ', ray)
                 edge_count += 1
             cross_num += 1 #三角形の平面内で交点を持つ → カウント
-            #
-            # print('u, v, t = ', u, v, t)
-            #print('{:.1000f}'.format(u))
 
         else:
             continue #三角形の平面外で交点を持つ
 
-    # if edge_count == 1: 
-    #     print('pds_point = ', pds_point)
-    #     print('v0, v1, v2 : ', v0, v1, v2)       
-    #print('cross_num', cross_num)
     if (cross_num - edge_count/2) % 2 == 0:
-    # if cross_num % 2 == 0:
         flg = -1 #外側
-        #rint('              ')
-        # print('外側判定となりました．')
-        #print('注目点座標：', pds_point)
-        #print('              ')
     else:
         flg = 1 #内側
     # print('交差回数：', cross_num)
@@ -394,49 +298,6 @@ def thinning_pds(points, PDS_PITCH):
     print('間引き前表面生成点(重複削除済み): ', i)
 
     return fixed_points
-
-
-
-def gaussian_elimination_3d(a, b, c, d):
-    # 拡大係数行列を作成
-    augmented_matrix = [
-        [a[0], b[0], c[0], d[0]],
-        [a[1], b[1], c[1], d[1]],
-        [a[2], b[2], c[2], d[2]]
-    ]
-
-    # 上三角行列に変換
-    for i in range(3):
-        # ピボット選択
-        pivot_row = i
-        for j in range(i + 1, 3):
-            if abs(augmented_matrix[j][i]) > abs(augmented_matrix[pivot_row][i]):
-                pivot_row = j
-        augmented_matrix[i], augmented_matrix[pivot_row] = augmented_matrix[pivot_row], augmented_matrix[i]
-
-        # ピボットが0の場合、一意の解を持たない
-        if augmented_matrix[i][i] == 0:
-            return None
-
-        # ピボットの行を正規化
-        pivot_value = augmented_matrix[i][i]
-        for j in range(i, 4):
-            augmented_matrix[i][j] /= pivot_value
-
-        # ピボットの列を0にする
-        for j in range(i + 1, 3):
-            factor = augmented_matrix[j][i]
-            for k in range(i, 4):
-                augmented_matrix[j][k] -= factor * augmented_matrix[i][k]
-
-    # 後退代入
-    solution = [0, 0, 0]
-    for i in range(2, -1, -1):
-        solution[i] = augmented_matrix[i][3]
-        for j in range(i + 1, 3):
-            solution[i] -= augmented_matrix[i][j] * solution[j]
-
-    return tuple(solution)
 
 
 def solve_linear_equation(A, b):
